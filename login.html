@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tree Selling App Login</title>
+    <title>Tree Selling App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,10 +66,21 @@
             margin-top: 20px;
         }
 
-        /* New styles for price and buttons */
         .product-section {
             text-align: center;
             margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
         }
 
         .price {
@@ -96,13 +107,20 @@
             cursor: pointer;
             margin-top: 10px;
         }
+
+        /* Hide product section initially */
+        .product-section {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="login-container">
+    <!-- Login Section -->
+    <div class="login-container" id="loginContainer">
         <h2>Tree Selling App Login</h2>
-        <form>
+        <form id="loginForm" onsubmit="return validateLogin()">
             <div class="input-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
@@ -118,15 +136,70 @@
         </div>
     </div>
 
-    <!-- Product Section -->
-    <div class="product-section">
-        <h2>Buy Mangoes</h2>
-        <!-- Item Picture -->
-        <img class="product-image" src="images/mangoes-.jpg" alt="Mangoes">
-        <p class="price">$29.99</p>
-        <button class="add-to-cart">Add to Cart</button>
-        <button class="checkout">Checkout</button>
+    <!-- Product Section (Hidden initially) -->
+    <div class="product-section" id="productSection">
+        <h2>Our Products</h2>
+
+        <!-- Product 1 -->
+        <div class="product">
+            <h3>Tree - $29.99</h3>
+            <img class="product-image" src="https://example.com/plan.jpeg" alt="plan">
+            <p class="price">$29.99</p>
+            <button class="add-to-cart" onclick="addToCart('Tree', 29.99)">Add to Cart</button>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="product">
+            <h3>Mangoes - $19.99</h3>
+            <img class="product-image" src="https://example.com/mango-image.jpg" alt="Mangoes">
+            <p class="price">$19.99</p>
+            <button class="add-to-cart" onclick="addToCart('Mangoes', 19.99)">Add to Cart</button>
+        </div>
+
+        <!-- Checkout Button -->
+        <button class="checkout" onclick="checkout()">Checkout</button>
     </div>
+
+    <script>
+        // Simulated User Credentials
+        const validUsername = "admin";
+        const validPassword = "password123";
+
+        let cart = []; // Array to store cart items
+
+        // Validate login credentials
+        function validateLogin() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === validUsername && password === validPassword) {
+                alert("Login successful!");
+                document.getElementById("loginContainer").style.display = "none";  // Hide login form
+                document.getElementById("productSection").style.display = "block"; // Show product section
+                return false; // Prevent form submission
+            } else {
+                alert("Invalid username or password.");
+                return false;
+            }
+        }
+
+        // Add item to the cart
+        function addToCart(productName, productPrice) {
+            cart.push({ productName, productPrice });
+            alert(productName + " added to cart!");
+        }
+
+        // Checkout function
+        function checkout() {
+            if (cart.length === 0) {
+                alert("Your cart is empty.");
+            } else {
+                let totalAmount = cart.reduce((total, item) => total + item.productPrice, 0);
+                alert("Checkout successful! Total: $" + totalAmount.toFixed(2));
+                cart = []; // Clear cart after checkout
+            }
+        }
+    </script>
 
 </body>
 </html>
