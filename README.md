@@ -51,10 +51,4 @@ This repository contains the code for the **Tree Selling App**, a web applicatio
 
 
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-This README structure provides an overview of your project, how to run it locally, and outlines the CI/CD pipeline that you're using. You can always expand it by adding more sections, such as specific configuration details or examples of how to use the app. Let me know if you'd like to add or change anything!
