@@ -22,7 +22,8 @@ function validateLogin() {
 
 // Add product to cart
 function addToCart(productName, productPrice) {
-    cart.push({ productName, productPrice });
+    cart.push({ productName, productPrice }); // Add item to the cart array
+    console.log(cart); // Log the cart for debugging
     alert(productName + " added to cart!");
 }
 
@@ -31,14 +32,14 @@ function checkout() {
     if (cart.length === 0) {
         alert("Your cart is empty.");
     } else {
+        // Calculate total price
         let totalAmount = cart.reduce((total, item) => total + item.productPrice, 0);
+        // Display checkout details
         alert("Checkout successful! Total: $" + totalAmount.toFixed(2));
-        cart = []; // Clear cart after checkout
+        
+        // Clear cart after checkout
+        cart = [];
+        console.log(cart); // Log the empty cart to verify it's cleared
     }
 }
 
-// Switch to product section after login
-function showProducts() {
-    document.getElementById('productSection').style.display = 'block';
-    document.getElementById('loginContainer').style.display = 'none';
-}
