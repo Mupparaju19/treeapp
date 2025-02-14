@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Selling App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loginContainer">
+        <!-- Redirecting from login.html to index.html on successful login -->
+    </div>
+
+    <div id="productSection" class="product-section">
+        <h2>Our Products</h2>
+
+        <!-- Product 1 -->
+        <div class="product">
+            <h3>Tree - $29.99</h3>
+            <img class="product-image" src="images/plan.jpeg" alt="Tree Image">
+            <p class="price">$29.99</p>
+            <button class="add-to-cart" onclick="addToCart('Tree', 29.99)">Add to Cart</button>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="product">
+            <h3>Mangoes - $19.99</h3>
+            <img class="product-image" src="images/mangoes-.jpg" alt="Mangoes">
+            <p class="price">$19.99</p>
+            <button class="add-to-cart" onclick="addToCart('Mangoes', 19.99)">Add to Cart</button>
+        </div>
+
+        <!-- Checkout Button -->
+        <button class="checkout" onclick="checkout()">Checkout</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
