@@ -24,7 +24,7 @@ jobs:
     # Step 3: Build the Docker image
     - name: Build Docker image
       run: |
-        docker build -t tree-selling-app .
+        docker build -t tree-selling-app:latest .
 
   test:
     runs-on: ubuntu-latest  # Use the latest Ubuntu image
@@ -41,7 +41,7 @@ jobs:
     # Step 3: Build the Docker image (again in test step to ensure consistency)
     - name: Build Docker image for testing
       run: |
-        docker build -t tree-selling-app .
+        docker build -t tree-selling-app:latest .
 
     # Step 4: Log in to Docker Hub using GitHub Secrets for Docker credentials
     - name: Log in to Docker Hub
@@ -53,7 +53,7 @@ jobs:
     # Step 5: Run Docker container to check if app is working
     - name: Run Docker container
       run: |
-        docker run -d -p 8080:80 --name tree-selling-app tree-selling-app
+        docker run -d -p 8080:80 --name tree-selling-app tree-selling-app:latest
 
     # Step 6: Wait for the app to start
     - name: Wait for the app to start
@@ -80,9 +80,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Deploy Docker image (without SSH deployment)
-    - name: Push Docker image to Docker Hub
+    # Step 2: Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username
+        password: ${{ secrets.DOCKER_TOKEN }}  # Docker Hub token
+
+    # Step 3: Tag and push the Docker image to Docker Hub
+    - name: Tag and push Docker image
       run: |
+        # Ensure the image is tagged correctly
+        docker tag tree-selling-app:latest ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:latest
+        # Push the image to Docker Hub
         docker push ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:latest
 
-   
+ 
