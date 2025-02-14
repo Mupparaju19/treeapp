@@ -3,96 +3,99 @@ name: Build, Test, and Deploy Tree Selling App with Docker
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
   pull_request:
     branches:
-      - main  # Trigger on pull request targeting the main branch
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu image
-
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    
     steps:
-    # Step 1: Checkout repository
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Set up Docker Buildx (for multi-platform builds)
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
 
-    # Step 3: Build the Docker image
-    - name: Build Docker image
-      run: |
-        docker build -t tree-selling-app:latest .
+    - name: Docker metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: |
+          ${{ secrets.DOCKER_USERNAME }}/tree-selling-app
+          tree-selling-app
+        tags: |
+          type=sha,format=long
+          type=ref,event=branch
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
 
   test:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu image
+    runs-on: ubuntu-latest
+    needs: build
 
     steps:
-    # Step 1: Checkout repository (to access the code and Dockerfile)
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Set up Docker Buildx
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    # Step 3: Build the Docker image (again in test step to ensure consistency)
-    - name: Build Docker image for testing
-      run: |
-        docker build -t tree-selling-app:latest .
-
-    # Step 4: Log in to Docker Hub using GitHub Secrets for Docker credentials
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username from GitHub Secrets
-        password: ${{ secrets.DOCKER_TOKEN }}  # Docker Hub token from GitHub Secrets
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
 
-    # Step 5: Run Docker container to check if app is working
+    - name: Pull Docker image
+      run: |
+        docker pull ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:${{ needs.build.outputs.image-tag }}
+
     - name: Run Docker container
       run: |
-        docker run -d -p 8080:80 --name tree-selling-app tree-selling-app:latest
+        docker run -d -p 8080:80 --name tree-test \
+          ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:${{ needs.build.outputs.image-tag }}
 
-    # Step 6: Wait for the app to start
-    - name: Wait for the app to start
-      run: sleep 15  # Allow time for the app to load
+    - name: Wait for app startup
+      uses: jwgmeligmeyling/wait-for-port-action@v1
+      with:
+        host: localhost
+        port: 8080
+        timeout: 20
 
-    # Step 7: Run a test to confirm the app is working (using curl)
-    - name: Check if app is accessible
+    - name: Run accessibility test
       run: |
-        curl --fail http://localhost:8080 || exit 1  # Ensure the app is reachable
+        curl --fail --retry 5 --retry-delay 3 http://localhost:8080 || exit 1
 
-    # Step 8: Clean up (stop the container after testing)
-    - name: Stop Docker container after testing
+    - name: Cleanup containers
+      if: always()
       run: |
-        docker ps -q -f "ancestor=tree-selling-app" | xargs -r docker stop
-        docker ps -q -f "ancestor=tree-selling-app" | xargs -r docker rm
+        docker rm -f tree-test
 
   deploy:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu image
-    needs: [build, test]  # Ensure this step runs only after the build and test jobs complete successfully
-    environment: production  # Define the environment for deployment
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    environment: 
+      name: production
+      url: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/tree-selling-app
 
     steps:
-    # Step 1: Checkout repository
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    # Step 2: Log in to Docker Hub
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username
-        password: ${{ secrets.DOCKER_TOKEN }}  # Docker Hub token
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
 
-    # Step 3: Tag and push the Docker image to Docker Hub
-    - name: Tag and push Docker image
+    - name: Promote to latest
       run: |
-        # Ensure the image is tagged correctly
-        docker tag tree-selling-app:latest ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:latest
-        # Push the image to Docker Hub
+        docker pull ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:${{ needs.build.outputs.image-tag }}
+        docker tag ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:${{ needs.build.outputs.image-tag }} \
+          ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/tree-selling-app:latest
-
- 
