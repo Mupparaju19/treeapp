@@ -43,24 +43,32 @@ jobs:
       run: |
         docker build -t tree-selling-app .
 
-    # Step 4: Run Docker container to check if app is working
+    # Step 4: Log in to Docker Hub using GitHub Secrets for Docker credentials
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username from GitHub Secrets
+        password: ${{ secrets.DOCKER_TOKEN }}  # Docker Hub token from GitHub Secrets
+
+    # Step 5: Run Docker container to check if app is working
     - name: Run Docker container
       run: |
         docker run -d -p 8080:80 tree-selling-app
 
-    # Step 5: Wait for the app to start
+    # Step 6: Wait for the app to start
     - name: Wait for the app to start
       run: sleep 15  # Allow time for the app to load
 
-    # Step 6: Run a test to confirm the app is working (using curl)
+    # Step 7: Run a test to confirm the app is working (using curl)
     - name: Check if app is accessible
       run: |
         curl --fail http://localhost:8080 || exit 1  # Ensure the app is reachable
 
-    # Step 7: Clean up (stop the container after testing)
+    # Step 8: Clean up (stop the container after testing)
     - name: Stop Docker container after testing
       run: |
         docker ps -q -f "ancestor=tree-selling-app" | xargs docker stop
+        docker ps -q -f "ancestor=tree-selling-app" | xargs docker rm
 
   deploy:
     runs-on: ubuntu-latest  # Use the latest Ubuntu image
