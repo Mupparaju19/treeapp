@@ -7,11 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loginContainer">
-        <!-- Redirecting from login.html to index.html on successful login -->
+    <!-- Login Section (Login form) -->
+    <div id="loginContainer" class="login-container">
+        <h2>Tree Selling App Login</h2>
+        <form id="loginForm" onsubmit="return validateLogin()">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <div class="footer">
+            <p>Forgot your password? <a href="#">Click here</a></p>
+        </div>
     </div>
 
-    <div id="productSection" class="product-section">
+    <!-- Product Section (Hidden initially) -->
+    <div class="product-section" id="productSection" style="display: none;">
         <h2>Our Products</h2>
 
         <!-- Product 1 -->
