@@ -3,6 +3,13 @@
 
 This repository contains the code for the **Tree Selling App**, a web application designed for buying and selling trees online. It utilizes Docker for containerization and is integrated into a CI/CD pipeline for automatic build, test, and deployment.
 
+
+##architecture diagram
+
+
+
+
+
 ## Features
 
 - **Web-based Interface**: Allows users to browse and purchase trees.
