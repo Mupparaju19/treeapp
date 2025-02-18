@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tree-selling-app
+  labels:
+    app: tree-selling-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tree-selling-app
+  template:
+    metadata:
+      labels:
+        app: tree-selling-app
+    spec:
+      containers:
+      - name: tree-selling-app
+        image: "murali54321/tree-selling-app:latest"  # Replace with your image
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ENV_VAR_NAME  # Example environment variable
+          value: "production"  # Replace with your desired value
+
